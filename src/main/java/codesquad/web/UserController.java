@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import codesquad.UnAuthenticationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -32,6 +33,11 @@ public class UserController {
         return "/user/form";
     }
 
+    @GetMapping("/login")
+    public String loginForm(){
+        return "/user/login";
+    }
+
     @PostMapping("")
     public String create(UserDto userDto) {
         userService.add(userDto);
@@ -58,4 +64,13 @@ public class UserController {
         return "redirect:/users";
     }
 
+    @PostMapping("/login")
+    public String login(String userId, String password) {
+        try {
+            userService.login(userId, password);
+            return "redirect:/users";
+        } catch (UnAuthenticationException e) {
+            return "/user/login_failed";
+        }
+    }
 }
