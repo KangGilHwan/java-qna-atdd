@@ -1,5 +1,6 @@
 package codesquad.web;
 
+import codesquad.UnAuthenticationException;
 import codesquad.security.HttpSessionUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpSession;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class LoginAcceptanceTest extends AcceptanceTest {
 
@@ -24,16 +26,26 @@ public class LoginAcceptanceTest extends AcceptanceTest {
 
     @Test
     public void login() throws Exception {
-        HttpHeaders header = new HttpHeaders();
-        header.setAccept(Arrays.asList(MediaType.TEXT_HTML));
-        header.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        HtmlFormDataBuilder builder = HtmlFormDataBuilder.urlEncodedForm();
 
-        MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
-        params.add("userId", "riverway");
-        params.add("password", "test");
-        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<MultiValueMap<String, Object>>(params, header);
+        builder.addParameter("userId", "riverway");
+        builder.addParameter("password", "test");
+        HttpEntity<MultiValueMap<String, Object>> request = builder.build();
 
         ResponseEntity<String> response = template().postForEntity("/users/login", request, String.class);
         assertThat(response.getStatusCode(), is(HttpStatus.FOUND));
+        assertTrue(response.getHeaders().getLocation().getPath().startsWith("/users"));
+    }
+
+    @Test
+    public void login_fail() throws Exception {
+        HtmlFormDataBuilder builder = HtmlFormDataBuilder.urlEncodedForm();
+
+        builder.addParameter("userId", "riverway");
+        builder.addParameter("password", "failTest");
+        HttpEntity<MultiValueMap<String, Object>> request = builder.build();
+
+        ResponseEntity<String> response = template().postForEntity("/users/login", request, String.class);
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
     }
 }
