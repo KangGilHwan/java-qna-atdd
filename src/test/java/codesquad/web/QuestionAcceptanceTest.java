@@ -19,6 +19,20 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
 
     @Autowired
     private QuestionRepository questionRepository;
+    private final Long testQuestionNum = Long.valueOf(1);
+
+    @Test
+    public void form(){
+        ResponseEntity<String> response = template().getForEntity("/questions/form", String.class);
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+    }
+
+    @Test
+    public void show(){
+        ResponseEntity<String> response = template().getForEntity(String.format("/questions/%d", testQuestionNum), String.class);
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().contains(questionRepository.findById(testQuestionNum).get().getTitle()), is(true));
+    }
 
     @Test
     public void create() {
@@ -45,6 +59,40 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
 
         HttpEntity<MultiValueMap<String, Object>> request = builder.build();
         ResponseEntity<String> response = template().postForEntity("/questions", request, String.class);
+        assertThat(response.getStatusCode(), is(HttpStatus.FORBIDDEN));
+    }
+
+    @Test
+    public void updateForm(){
+        ResponseEntity<String> respose = template().getForEntity(String.format("/questions/%d/form", testQuestionNum), String.class);
+        assertThat(respose.getStatusCode(), is(HttpStatus.OK));
+    }
+
+    @Test
+    public void update_login() {
+        HtmlFormDataBuilder builder = HtmlFormDataBuilder.urlEncodedForm();
+
+        String title = "test";
+        builder.addParameter("title", title);
+        builder.addParameter("contents", "test");
+        builder.addParameter("_method", "put");
+
+        HttpEntity<MultiValueMap<String, Object>> request = builder.build();
+        ResponseEntity<String> response = basicAuthTemplate().postForEntity(String.format("/questions/%d", testQuestionNum), request, String.class);
+        assertThat(response.getStatusCode(), is(HttpStatus.FOUND));
+    }
+
+    @Test
+    public void update_no_login() {
+        HtmlFormDataBuilder builder = HtmlFormDataBuilder.urlEncodedForm();
+
+        String title = "test";
+        builder.addParameter("title", title);
+        builder.addParameter("contents", "test");
+        builder.addParameter("_method", "put");
+
+        HttpEntity<MultiValueMap<String, Object>> request = builder.build();
+        ResponseEntity<String> response = template().postForEntity(String.format("/questions/%d", testQuestionNum), request, String.class);
         assertThat(response.getStatusCode(), is(HttpStatus.FORBIDDEN));
     }
 }

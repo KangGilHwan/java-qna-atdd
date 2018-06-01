@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.annotation.Resource;
 
+import codesquad.UnAuthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -42,8 +43,10 @@ public class QnaService {
     }
 
     public Question update(User loginUser, long id, Question updatedQuestion) {
-        // TODO 수정 기능 구현
-        return null;
+        Question original = findById(id).orElseThrow(UnAuthorizedException::new);
+        original.update(updatedQuestion, loginUser);
+        log.debug("update Success : {}", original);
+        return questionRepository.save(original);
     }
 
     @Transactional
