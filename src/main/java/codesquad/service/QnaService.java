@@ -42,6 +42,10 @@ public class QnaService {
         return questionRepository.findById(id);
     }
 
+    public Question checkOwner(User loginUser, long id) {
+        return findById(id).filter(q -> q.isOwner(loginUser)).orElseThrow(UnAuthorizedException::new);
+    }
+
     public Question update(User loginUser, long id, Question updatedQuestion) {
         Question original = findById(id).orElseThrow(UnAuthorizedException::new);
         original.update(updatedQuestion, loginUser);
@@ -51,7 +55,11 @@ public class QnaService {
 
     @Transactional
     public void deleteQuestion(User loginUser, long questionId) throws CannotDeleteException {
-        // TODO 삭제 기능 구현
+        Question question = findById(questionId).get();
+        if (!question.isOwner(loginUser)) {
+            throw new CannotDeleteException("사용자가 작성한 글이 아닙니다.");
+        }
+        questionRepository.deleteById(questionId);
     }
 
     public Iterable<Question> findAll() {
