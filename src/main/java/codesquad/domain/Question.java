@@ -75,7 +75,6 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         if (!isOwner(loginUser)) {
             throw new UnAuthorizedException();
         }
-
         title = updateQuestion.title;
         contents = updateQuestion.contents;
     }

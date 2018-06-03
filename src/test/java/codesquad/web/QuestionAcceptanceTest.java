@@ -50,9 +50,11 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
 
     @Test
     public void create_login() {
+        long count = questionRepository.count();
         ResponseEntity<String> response = create(basicAuthTemplate());
+        log.debug("response : {}", response);
         assertThat(response.getStatusCode(), is(HttpStatus.FOUND));
-        assertNotNull(questionRepository.findByTitle("test"));
+        assertThat(questionRepository.count(), is(count+1));
         assertTrue(response.getHeaders().getLocation().getPath().startsWith("/"));
     }
 
