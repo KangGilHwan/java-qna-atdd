@@ -46,11 +46,11 @@ public class QnaService {
         return findById(id).filter(q -> q.isOwner(loginUser)).orElseThrow(UnAuthorizedException::new);
     }
 
-    public Question update(User loginUser, long id, Question updatedQuestion) {
+    @Transactional
+    public void update(User loginUser, long id, Question updatedQuestion) {
         Question original = findById(id).orElseThrow(UnAuthorizedException::new);
         original.update(updatedQuestion, loginUser);
         log.debug("update Success : {}", original);
-        return questionRepository.save(original);
     }
 
     @Transactional

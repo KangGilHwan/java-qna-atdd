@@ -1,5 +1,6 @@
 package codesquad.web;
 
+import codesquad.domain.Question;
 import codesquad.domain.QuestionRepository;
 import codesquad.domain.UserRepository;
 import com.sun.deploy.net.HttpResponse;
@@ -84,6 +85,10 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
     public void update_login() {
         ResponseEntity<String> response = update(basicAuthTemplate());
         assertThat(response.getStatusCode(), is(HttpStatus.FOUND));
+
+        Question question = questionRepository.findById(testQuestionNum).get();
+        assertThat(question.getTitle(), is("test2"));
+        assertThat(question.getContents(), is("test"));
     }
 
     @Test
