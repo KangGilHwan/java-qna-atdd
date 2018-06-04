@@ -24,7 +24,8 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
         log.debug("response : {}", response);
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
         String location = response.getHeaders().getLocation().getPath();
-        log.debug("location : {}", location);
+        log.debug("path : {}", location);
+        log.debug("location : {}", response.getHeaders().getLocation());
 
         UserDto dbUser = basicAuthTemplate(findByUserId(newUser.getUserId())).getForObject(location, UserDto.class);
         assertThat(dbUser, is(newUser));
@@ -46,7 +47,7 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
     }
 
     @Test
-    public void update() throws Exception {
+    public void update_login() throws Exception {
         UserDto newUser = createUserDto("testuser3");
         ResponseEntity<String> response = template().postForEntity("/api/users", newUser, String.class);
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
