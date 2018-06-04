@@ -70,4 +70,13 @@ public class QuestionDto {
     public int hashCode() {
         return Objects.hash(title, contents);
     }
+
+    @Override
+    public String toString() {
+        return "QuestionDto{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", contents='" + contents + '\'' +
+                '}';
+    }
 }
