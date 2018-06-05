@@ -27,11 +27,8 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest{
     @Test
     public void create_login(){
         QuestionDto newQuestion = createDto();
-        ResponseEntity<String> response = basicAuthTemplate().postForEntity("/api/questions", newQuestion, String.class);
-        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
-        log.debug("response : {}", response);
 
-        String location = response.getHeaders().getLocation().getPath();
+        String location = createResource("/api/questions", newQuestion, basicAuthTemplate());
         QuestionDto dbQuestion = template().getForObject(location, QuestionDto.class);
         assertThat(newQuestion, is(dbQuestion));
     }
@@ -39,44 +36,35 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest{
     @Test
     public void update_login(){
         QuestionDto newQuestion = createDto();
-        ResponseEntity<String> response = basicAuthTemplate().postForEntity("/api/questions", newQuestion, String.class);
-        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
-        log.debug("response : {}", response);
 
-        String location = response.getHeaders().getLocation().getPath();
+        String location = createResource("/api/questions", newQuestion, basicAuthTemplate());
         QuestionDto updateQuestion = new QuestionDto("titleTest2", "contentsTest2");
         basicAuthTemplate().put(location, updateQuestion);
 
-        QuestionDto dbQuestion = basicAuthTemplate().getForObject(location, QuestionDto.class);
+        QuestionDto dbQuestion = getResource(location, QuestionDto.class, defaultUser());
         assertThat(updateQuestion, is(dbQuestion));
     }
 
     @Test
     public void update_다른_사용자(){
         QuestionDto newQuestion = createDto();
-        ResponseEntity<String> response = basicAuthTemplate().postForEntity("/api/questions", newQuestion, String.class);
-        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
-        log.debug("response : {}", response);
 
-        String location = response.getHeaders().getLocation().getPath();
+        String location = createResource("/api/questions", newQuestion, basicAuthTemplate());
         QuestionDto updateQuestion = new QuestionDto("titleTest2", "contentsTest2");
         basicAuthTemplate(findByUserId("riverway")).put(location, updateQuestion);
 
-        QuestionDto dbQuestion = basicAuthTemplate(findByUserId("riverway")).getForObject(location, QuestionDto.class);
+        QuestionDto dbQuestion = getResource(location, QuestionDto.class, findByUserId("riverway"));
         assertThat(newQuestion, is(dbQuestion));
     }
 
     @Test
     public void delete_login(){
         QuestionDto newQuestion = createDto();
-        ResponseEntity<String> response = basicAuthTemplate().postForEntity("/api/questions", newQuestion, String.class);
-        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
-        log.debug("response : {}", response);
 
-        String location = response.getHeaders().getLocation().getPath();
+        String location = createResource("/api/questions", newQuestion, basicAuthTemplate());
         basicAuthTemplate().delete(location);
 
-        QuestionDto dbQuestion = basicAuthTemplate().getForObject(location, QuestionDto.class);
+        QuestionDto dbQuestion = getResource(location, QuestionDto.class, defaultUser());
         log.debug("dbQuestion : {}", dbQuestion);
         assertNull(dbQuestion);
     }
@@ -84,14 +72,11 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest{
     @Test
     public void delete_다른_사용자(){
         QuestionDto newQuestion = createDto();
-        ResponseEntity<String> response = basicAuthTemplate().postForEntity("/api/questions", newQuestion, String.class);
-        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
-        log.debug("response : {}", response);
 
-        String location = response.getHeaders().getLocation().getPath();
+        String location = createResource("/api/questions", newQuestion, basicAuthTemplate());
         basicAuthTemplate(findByUserId("riverway")).delete(location);
 
-        QuestionDto dbQuestion = basicAuthTemplate(findByUserId("riverway")).getForObject(location, QuestionDto.class);
+        QuestionDto dbQuestion = getResource(location, QuestionDto.class, findByUserId("riverway"));
         assertThat(dbQuestion, is(newQuestion));
     }
 
