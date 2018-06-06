@@ -12,6 +12,8 @@ import codesquad.UnAuthorizedException;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
 
+import java.time.LocalDateTime;
+
 @Entity
 public class Answer extends AbstractEntity implements UrlGeneratable {
     @ManyToOne
@@ -51,12 +53,13 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
         this.contents = contents;
     }
 
-    public void delete(User loginUser) throws CannotDeleteException{
+    public DeleteHistory delete(User loginUser) throws CannotDeleteException{
         if (!isOwner(loginUser)){
             throw new CannotDeleteException("자신의 답변만 삭제할 수 있습니다.");
         }
         System.out.println("삭제");
         deleted = true;
+        return new DeleteHistory(ContentType.ANSWER, getId(), loginUser, LocalDateTime.now());
     }
 
     public User getWriter() {
