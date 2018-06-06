@@ -46,15 +46,15 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
         this.deleted = false;
     }
 
-    public void update(User loginUser, String contents){
-        if(!isOwner(loginUser)){
+    public void update(User loginUser, String contents) {
+        if (!isOwner(loginUser)) {
             throw new UnAuthorizedException("자신의 답변만 수정할 수 있습니다.");
         }
         this.contents = contents;
     }
 
-    public DeleteHistory delete(User loginUser) throws CannotDeleteException{
-        if (!isOwner(loginUser)){
+    public DeleteHistory delete(User loginUser) throws CannotDeleteException {
+        if (!isOwner(loginUser)) {
             throw new CannotDeleteException("자신의 답변만 삭제할 수 있습니다.");
         }
         System.out.println("삭제");

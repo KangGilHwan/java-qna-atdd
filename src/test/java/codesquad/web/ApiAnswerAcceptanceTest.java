@@ -1,5 +1,6 @@
 package codesquad.web;
 
+import codesquad.UnAuthorizedException;
 import codesquad.domain.Answer;
 import codesquad.dto.AnswerDto;
 import org.junit.Test;
