@@ -70,8 +70,8 @@ public class QnaService {
         return questionRepository.findAll(pageable).getContent();
     }
 
-    public Answer findByIdAnswer(long id){
-        return answerRepository.findById(id).get();
+    public Answer findByIdAnswer(long id) {
+        return answerRepository.findById(id).filter(a -> !a.isDeleted()).orElseThrow(UnAuthorizedException::new);
     }
 
     public Answer addAnswer(User loginUser, long questionId, String contents) {
@@ -81,13 +81,14 @@ public class QnaService {
     }
 
     @Transactional
-    public void updateAnswer(User loginUser, long id, String updateContents){
+    public void updateAnswer(User loginUser, long id, String updateContents) {
         Answer answer = findByIdAnswer(id);
         answer.update(loginUser, updateContents);
     }
 
-    public Answer deleteAnswer(User loginUser, long id) {
-        // TODO 답변 삭제 기능 구현 
-        return null;
+    @Transactional
+    public void deleteAnswer(User loginUser, long id) throws CannotDeleteException {
+        Answer answer = findByIdAnswer(id);
+        answer.delete(loginUser);
     }
 }
