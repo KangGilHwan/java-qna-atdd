@@ -1,5 +1,6 @@
 package codesquad.domain;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,15 +15,19 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.validation.constraints.Size;
 
+import codesquad.CannotDeleteException;
 import codesquad.UnAuthorizedException;
 import org.hibernate.annotations.Where;
 
 import codesquad.dto.QuestionDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
 
 @Entity
 public class Question extends AbstractEntity implements UrlGeneratable {
+    private static final Logger log = LoggerFactory.getLogger(Question.class);
     @Size(min = 3, max = 100)
     @Column(length = 100, nullable = false)
     private String title;
@@ -77,6 +82,22 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         }
         title = updateQuestion.title;
         contents = updateQuestion.contents;
+    }
+
+    public List<DeleteHistory> delete(User loginUser) throws CannotDeleteException {
+        if (!isOwner(loginUser)) {
+            throw new CannotDeleteException("자신의 질문만 삭제할 수 있습니다.");
+        }
+        List<DeleteHistory> deleteHistories = new ArrayList<>();
+
+        for (Answer answer : answers) {
+            deleteHistories.add(answer.delete(loginUser));
+            log.debug("answerHistory : {}", answer.delete(loginUser));
+        }
+        deleted = true;
+        DeleteHistory deleteHistory = new DeleteHistory(ContentType.QUESTION, getId(), loginUser, LocalDateTime.now());
+        deleteHistories.add(deleteHistory);
+        return deleteHistories;
     }
 
     public boolean isOwner(User loginUser) {

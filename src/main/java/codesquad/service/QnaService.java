@@ -38,6 +38,10 @@ public class QnaService {
         return questionRepository.findById(id);
     }
 
+    public Question show(long id) {
+        return findById(id).filter(q -> !q.isDeleted()).orElseThrow(UnAuthorizedException::new);
+    }
+
     public Question checkOwner(User loginUser, long id) {
         return findById(id).filter(q -> q.isOwner(loginUser)).orElseThrow(UnAuthorizedException::new);
     }
@@ -49,13 +53,11 @@ public class QnaService {
         log.debug("update Success : {}", original);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = CannotDeleteException.class)
     public void deleteQuestion(User loginUser, long questionId) throws CannotDeleteException {
         Question question = findById(questionId).get();
-        if (!question.isOwner(loginUser)) {
-            throw new CannotDeleteException("사용자가 작성한 글이 아닙니다.");
-        }
-        questionRepository.deleteById(questionId);
+        List<DeleteHistory> deleteHistories = question.delete(loginUser);
+        deleteHistoryService.saveAll(deleteHistories);
     }
 
     public Iterable<Question> findAll() {
