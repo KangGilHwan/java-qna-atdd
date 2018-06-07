@@ -60,6 +60,6 @@ public class QuestionTest {
         Answer answer2 = new Answer(1L, UserTest.SANJIGI, QuestionTest.TEST_QUESTION, "testContents");
         TEST_QUESTION.addAnswer(answer);
         TEST_QUESTION.addAnswer(answer2);
-        List<DeleteHistory> deleteHistories  = TEST_QUESTION.delete(UserTest.SANJIGI);
+        List<DeleteHistory> deleteHistories = TEST_QUESTION.delete(UserTest.SANJIGI);
     }
 }
